@@ -1,0 +1,82 @@
+USE MASTER
+GO
+DROP DATABASE IF EXISTS  GRAPHSDB
+GO
+CREATE DATABASE GRAPHSDB
+GO
+
+USE GRAPHSDB
+GO
+--CRIA NOSSA ENTIDADE CHAMADA PESSOA
+CREATE TABLE [dbo].[Pessoas](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Nome] [varchar](200) NULL) AS NODE
+GO
+
+--CRIA NOSSO RELACIONAMENTO CHAMADO CURTIU
+CREATE TABLE dbo.Curtiu  AS EDGE;
+
+go
+
+--INSERINDO DADOS NA ENTIDADE PESSOA
+INSERT INTO [Pessoas] VALUES('Reginaldo')
+INSERT INTO [Pessoas] VALUES('Bruno')
+INSERT INTO [Pessoas] VALUES('Felipe')
+INSERT INTO [Pessoas] VALUES('Antonieta')
+INSERT INTO [Pessoas] VALUES('Caio')
+INSERT INTO [Pessoas] VALUES('Paulo')
+INSERT INTO [Pessoas] VALUES('Sara')
+INSERT INTO [Pessoas] VALUES('Rafael')
+INSERT INTO [Pessoas] VALUES('Ricardo')
+INSERT INTO [Pessoas] VALUES('Ferdinanda')
+INSERT INTO [Pessoas] VALUES('Pedro')
+INSERT INTO [Pessoas] VALUES('Joaquim')
+INSERT INTO [Pessoas] VALUES('Samuela')
+INSERT INTO [Pessoas] VALUES('Pedrina')
+
+go
+
+--INSERINDO RELACIONAMENTOS
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Reginaldo'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Bruno'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Reginaldo'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Felipe'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Paulo'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Bruno'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Paulo'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Pedrina'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Bruno'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Antonieta'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Bruno'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Pedro'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Caio'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Joaquim'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Caio'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Bruno'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Joaquim'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Reginaldo'));
+INSERT INTO dbo.Curtiu VALUES ((SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Joaquim'),
+       (SELECT $node_id FROM dbo.Pessoas WHERE Nome = 'Felipe'));
+go
+
+--PESSOAS QUE O 'REGINALDO' CURTIU
+SELECT p.Nome Pessoa1, p2.Nome CurtidoPessoa1
+FROM Pessoas P, Curtiu, Pessoas p2
+WHERE MATCH(P-(Curtiu)->p2)
+AND p.NOME = 'Reginaldo';
+
+--PESSOAS QUE CURTIRAM AS MESMAS PESSOAS QUE O 'REGINALDO'
+SELECT Person1.nome AS Pessoa1,Person3.nome CurtidoPessoa1, Person2.nome AS CurtidoPessoa2
+FROM Pessoas Person1, Curtiu Curtiu1, Pessoas Person2, 
+     Curtiu Curtiu2, Pessoas Person3
+WHERE MATCH(Person1-(Curtiu1)->Person3<-(Curtiu2)-Person2)
+AND Person1.NOME = 'Reginaldo' and Person1.nome <> Person2.nome
+
+--PESSOAS QUE CURTIRAM O 'REGINALDO' E QUE FORAM CURTIDAS POR ALGUEM
+SELECT Person1.nome AS Pessoa1,Person3.nome CurtidoPessoa1, Person2.nome AS CurtidoPessoa2
+FROM Pessoas Person1, Curtiu Curtiu1, Pessoas Person2, 
+     Curtiu Curtiu2, Pessoas Person3
+WHERE MATCH(Person1<-(Curtiu1)-Person3<-(Curtiu2)-Person2)
+AND Person1.NOME = 'Reginaldo' and Person1.nome <> Person2.nome
+
+
