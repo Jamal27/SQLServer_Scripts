@@ -34,7 +34,7 @@ SP_GETUSEDOBJECTS
 @GETSTATS = 0,
 @SQLTEXT = "SELECT * FROM TABLE1 A INNER JOIN TABLE2 B ON A.ID = B.ID"
 
-2 - EXECUTANDO A QUERY E CAPTURANDO ESTATISCAS UTILIZADAS 
+3 - EXECUTANDO A QUERY E CAPTURANDO ESTATISTICAS UTILIZADAS 
 (WARNIG) ESSA OPÇÃO PODE DEMORAR CONSIDERAVELMENTE COM BASE NOS DADOS EM CACHE
 SP_GETUSEDOBJECTS 
 @HELP = 0,
@@ -42,7 +42,7 @@ SP_GETUSEDOBJECTS
 @GETSTATS = 1,
 @SQLTEXT = "SELECT * FROM TABLE1 A INNER JOIN TABLE2 B ON A.ID = B.ID"
 
-3 - INFORMAÇÕES ADICIONAIS
+4 - INFORMAÇÕES ADICIONAIS
 SP_GETUSEDOBJECTS 
 @HELP = 1,
 @EXECQUERY = 0,
@@ -69,9 +69,8 @@ Id		Autor                      Versão	      Data                            Des
 1		Reginaldo da Cruz Silva	   1.0.0.0		26/07/2017					Criação da procedure.
 
 Créditos especiais:
-A idéia inicial surgiu através do meu amigo Caio Amante, onde ao iniciar o processo de tuning de uma queryng surreal
-e extremamente grande, o mesmo se queixou que ao menos sabia quais eram os objetos que participavam do plano de 
-execução, dessa dificuldade surgiu o desafio. 
+@Caio Amante idealizador.
+Blog: https://caiosamante.wordpress.com/ 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -92,7 +91,7 @@ Email: Reginaldo.silva27@gmail.com
 @HELP				- EXIBE DETALHES DE VERSÃO, ATUALIZAÇÃO, PARAMETRIZAÇÕES, ASSIM COMO EXEMPLOS DE CHAMADA.
 @SQLTEXT			- TEXTO SQL QUE SERÁ PROCURADO NOS PLANOS DE EXECUÇÕES EM MEMÓRIA.
 @EXECQUERY			- EXECUTA A QUERY DO PARAMÊTRO @SQLTEXT.
-@GETSTATS			- (WARNING) ESSE PARAMÊTRO PODE DEFASAR A PERFOMANCE DA QUERY, ASSIM COMO A DO SERVIDOR DE SQL SERVER
+@GETSTATS			- (WARNING) ESSE PARAMÊTRO PODE DEGRADAR A PERFOMANCE DA QUERY, ASSIM COMO A DO SERVIDOR DE SQL SERVER,
 					  ESSE PARAMÊTRO TAMBÉM ATIVA O TRACE FLAG NÃO DOCUMENTADO (8666) PARA BUSCAR INFORMAÇÕES DAS ESTATISTICAS
 					  PODENDO PREJUCAR A PERFORMANCE DO AMBIENTE DEPENDO DO TAMANHO DO CACHE DE DADOS(USE POR CONTA E RISCO).
 @DBNAME				- BANCO DE DADOS QUE SERÁ CONSULTADO, PARAMETRO RECEBE UM VALOR DEFAULT DO BANCO QUE ORIGINOU A CHAMADA.
