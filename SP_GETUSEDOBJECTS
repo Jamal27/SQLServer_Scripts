@@ -59,7 +59,8 @@ Projeto.......: SCRIPTS
 Versão........: 1.0.0.0
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
-SQL Server edições testadas: SQL Server 2012 e superiores.
+SQL Server versões homologadas: SQL Server 2016 e 2017.
+SQL Server versões testadas: SQL Server 2008 e superiores.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 Id		Autor                      Versão	      Data                            Descrição
@@ -326,3 +327,5 @@ END
 
 
 DROP TABLE ##TABLE
+
+
