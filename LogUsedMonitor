@@ -1,0 +1,138 @@
+/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  
+                LOG USED MONITOR
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  
+Nome Procedure: stp_LogUsed  
+Projeto.......: SCRIPTS  
+Versão........: 1.0.0.0  
+---------------------------------------------------------------------------------------------------------------------------------------------  
+  
+SQL Server edições testadas: SQL Server 2008 e superiores.  
+  
+---------------------------------------------------------------------------------------------------------------------------------------------  
+Id  Autor                      Versão       Data                            Descrição  
+---------------------------------------------------------------------------------------------------------------------------------------------  
+  
+1  Reginaldo da Cruz Silva    1.0.0.1  01/11/2017						criação dos scripts.  
+  
+---------------------------------------------------------------------------------------------------------------------------------------------  
+  
+Revisão:  
+Reginaldo da Cruz Silva - 15/11/2017
+  
+Duvidas e sugestões:  
+Blog: https://blogdojamal.wordpress.com/  
+Email: Reginaldo.silva27@gmail.com  
+  
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+*/
+Use DBA
+go
+-- Drop table if exists Monitor_LogUsed --SQL Server 2016
+If(OBJECT_ID('Monitor_LogUsed')) is not null
+	Drop table Monitor_LogUsed
+go
+--Criação da tabela que armazenará o histórico de uso
+CREATE TABLE [dbo].[Monitor_LogUsed](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[DatabaseName] [varchar](200) NULL,
+	[PercentUsed] [tinyint] NULL,
+	[SizeMb] [int] NULL,
+	log_reuse_wait_desc  varchar(100),
+	[DtLog] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+--Criação procedure que será chamada pelo Job para inserir as informações na tabela Monitor_LogUsed
+Use DBA
+go
+If(OBJECT_ID('stp_LogUsed')) is not null
+	Drop procedure stp_LogUsed
+
+go
+Create procedure stp_LogUsed
+as
+INSERT INTO Monitor_LogUsed
+SELECT B.name as DatabaseName,a.cntr_value as PercentUsed, (C.size * 8) / 1024 AS Size_MB,B.log_reuse_wait_desc,Getdate() as Dtlog FROM 
+SYS.dm_os_performance_counters A 
+JOIN sys.databases B ON A.instance_name = B.name
+JOIN SYS.sysaltfiles C ON B.database_id = C.dbid
+where counter_name = 'Percent Log Used' AND B.database_id > 4 AND C.fileid = 2
+GO
+
+
+
+--Criação do Job que será iniciado a cada 5 minutos
+USE [msdb]
+GO
+
+/****** Object:  Job [DBA - Log Used Monitor]    Script Date: 11/17/2017 21:49:12 ******/
+BEGIN TRANSACTION
+DECLARE @ReturnCode INT
+SELECT @ReturnCode = 0
+/****** Object:  JobCategory [Data Collector]    Script Date: 11/17/2017 21:49:12 ******/
+IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'Data Collector' AND category_class=1)
+BEGIN
+EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'Data Collector'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+
+END
+
+DECLARE @jobId BINARY(16)
+EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - Log Used Monitor', 
+		@enabled=1, 
+		@notify_level_eventlog=0, 
+		@notify_level_email=0, 
+		@notify_level_netsend=0, 
+		@notify_level_page=0, 
+		@delete_level=0, 
+		@description=N'Monitora espaço utilizado pelo Transaction Log', 
+		@category_name=N'Data Collector', 
+		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Monitor_LogUsed]    Script Date: 11/17/2017 21:49:12 ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Monitor_LogUsed', 
+		@step_id=1, 
+		@cmdexec_success_code=0, 
+		@on_success_action=1, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'TSQL', 
+		@command=N'Exec stp_LogUsed', 
+		@database_name=N'DBA', 
+		@flags=0
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'5 minute', 
+		@enabled=1, 
+		@freq_type=4, 
+		@freq_interval=1, 
+		@freq_subday_type=4, 
+		@freq_subday_interval=5, 
+		@freq_relative_interval=0, 
+		@freq_recurrence_factor=0, 
+		@active_start_date=20171101, 
+		@active_end_date=99991231, 
+		@active_start_time=0, 
+		@active_end_time=235959, 
+		@schedule_uid=N'6fced4cb-1a7b-42d2-bfcb-bbb833c1ca2a'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+COMMIT TRANSACTION
+GOTO EndSave
+QuitWithRollback:
+    IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+EndSave:
+
+GO
+
+
