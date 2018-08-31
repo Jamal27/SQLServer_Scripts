@@ -2,7 +2,7 @@
 $cred = Import-Clixml C:\Temp\cred.xml 
 
 ##Executando Teste de Backup e salvando resultado em variavel
-$ResultTestBackup = Test-DbaLastBackup -SqlServer DESKTOP-A7S2JPV\SQLSERVER2016 -Databases SQLDAYES -WarningVariable Warnings -IgnoreLogBackup
+$ResultTestBackup = Test-DbaLastBackup -SqlServer DESKTOP-A7S2JPV\SQLSERVER2016 -Databases SQLDAYES -WarningVariable Warnings
 
 ##Exportando resultado para arquivo .txt que será enviado por e-mail
 $ResultTestBackup > 'C:\temp\ResultEmail.txt'
