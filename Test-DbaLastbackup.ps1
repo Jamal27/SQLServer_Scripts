@@ -20,7 +20,7 @@ if($ResultTestHtlm.Contains("Failure") -or $ResultTestHtlm.Contains("error"))
     $ResultTestHtlm = $ResultTestHtlm.ToString().Replace('<h1 style="color:blue;">Test Last Backup: SUCCEED</h1>','<h1 style="color:red;">Test Last Backup: FAILED</h1>')
 }
 
-##Envia E-mail com as opções configuradas acima
+##Envia E-mail com com arquivo .txt em anexo e corpo HTML
 Send-MailMessage -Credential $cred -SmtpServer "smtp.office365.com" -To "reginaldo.silva@dataside.com.br" -From "reginaldo.silva@dataside.com.br" -Subject "Test Last Backup - Dbatools" -UseSsl -Body $ResultTestHtlm -BodyAsHtml -Attachments 'C:\temp\ResultEmail.txt' -Priority High
 
 
