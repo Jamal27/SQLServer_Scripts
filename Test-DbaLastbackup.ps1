@@ -16,9 +16,10 @@ $ResultTestHtml = ""
 ##variável de controle
 $count = 0
 
+##Transformando objetos em HTML para enviar no corpo do e-mail
 ForEach($obj in $ResultTestBackup)
 {   
-    if($count.Equals(0))
+    if($count.Equals(0)) ##Adiciona a Header
     {     
         $ResultTestHtml +=  ConvertTo-Html -InputObject $obj -As List -Head '<h1 style="color:blue;">Test Last Backup: SUCCEED</h1>'         
     }
