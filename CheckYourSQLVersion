@@ -43,7 +43,7 @@ else
     $ResultTestHtml +=  '<H2 style="color:blue;">KEEP CALM AND DRINK BEER! WE ARE UPDATED!!</H2>'
 }
 
-#Importa credencial
+#Importa credencial para autenticar no seu servidor de e-mail, pode usar o comando a seguir para exportar: Get-Credential | Export-Clixml C:\Temp\cred.xml
 $cred = Import-Clixml C:\Temp\cred.xml 
 
 #Define assunto do e-mail
