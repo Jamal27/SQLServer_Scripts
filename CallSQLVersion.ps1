@@ -7,7 +7,7 @@ Set-Location C:\temp\
 #Load function Get-SQLBuildVersion to memory of this powershell session
 . .\Get-SQLBuildVersion.ps1
 
-#Import your email credential, you can export using this command: $cred = Import-Clixml C:\Temp\cred.xml, put yours credentials on the pop-up and save it.
+#Import your email credential, you can export using this command: Get-Credential | Export-Clixml C:\Temp\credemail.xml, put yours credentials on the pop-up and save it.
 $cred = Import-Clixml C:\Temp\cred.xml 
 
 #Call function with your parameters
