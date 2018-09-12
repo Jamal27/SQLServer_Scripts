@@ -2,6 +2,7 @@
 [Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo")  
 
 #navigate to folder that you save files
+####### ALTER HERE #######
 Set-Location C:\temp\
 
 #Load function Get-SQLBuildVersion to memory of this powershell session
