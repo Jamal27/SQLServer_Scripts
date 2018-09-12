@@ -5,7 +5,8 @@
 
         .DESCRIPTION
             This command get a table with the latest version of your SQL Server Instance, based on https://buildnumbers.wordpress.com/sqlserver/
-
+            Based on your build number, invoke a method to get a blog page and extract a table with most recent updates.
+            
         .PARAMETER SqlInstance
             Receive a array with SQL instances that you want check.
 
