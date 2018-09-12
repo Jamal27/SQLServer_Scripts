@@ -1,13 +1,13 @@
 ﻿function Get-SQLBuildVersion{
     <# 
         .SYNOPSIS 
-            Check if your SQL Server version is newer. 
+            Check if your SQL Server version is updated. 
 
         .DESCRIPTION
-            This command get a table with the latest version of your SQL Server Instance.
+            This command get a table with the latest version of your SQL Server Instance, based on https://buildnumbers.wordpress.com/sqlserver/
 
         .PARAMETER SqlInstance
-            Receive a array with SQL instances that you want check
+            Receive a array with SQL instances that you want check.
 
         .PARAMETER CredentialEmail
             Credential object used to connect to your SMTP server.
@@ -19,7 +19,7 @@
             Recipient of the email.
         
         .PARAMETER EmailFrom
-            account that send the e-mail.
+            Account that send the e-mail.
         
         .NOTES
             Get more about author in https://blogdojamal.wordpress.com/
@@ -29,13 +29,13 @@
         
         .EXAMPLE
             Get-SQLBuildVersion -SqlInstance "DESKTOP-A7S2JPV\SQLSERVER2016"
-            Get the latest version of your instance called SQLSERVER2016 and compare with console output
+            Get the latest version of your instance, in this example called SQLSERVER2016 and write output in console.
         
         .EXAMPLE
             $cred = Import-Clixml C:\Temp\cred.xml 
             Get-SQLBuildVersion -SqlInstance "DESKTOP-A7S2JPV\SQLSERVER2016","DESKTOP-A7S2JPV\SQLSERVER2014" -SmtpServer "smtp.office365.com" -EmailFrom "reginaldo.silva27@gmail.com" -EmailTo "reginaldo.silva27@gmail.com" -CredentialEmail $cred 
         
-            Get the latest version of yours instances called SQLSERVER2016, SQLSERVER2014 and send a e-mail report for each one
+            Get the latest version of yours instances, in this example called SQLSERVER2016, SQLSERVER2014 and send a e-mail report for each one.
 
    #>
 [CmdletBinding()]
