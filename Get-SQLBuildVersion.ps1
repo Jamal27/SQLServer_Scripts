@@ -2,17 +2,14 @@
     <# 
         .SYNOPSIS 
             Check if your SQL Server version is updated. 
-
         .DESCRIPTION
             This command get a table with the latest version of your SQL Server Instance, based on https://buildnumbers.wordpress.com/sqlserver/
             Based on your build number, invoke a method to get a blog page and extract a table with most recent updates.
             
         .PARAMETER SqlInstance
             Receive a array with SQL instances that you want check.
-
         .PARAMETER CredentialEmail
             Credential object used to connect to your SMTP server.
-
         .PARAMETER SmtpServer
             Server to response your smpt requests like smtp.office365.com.
         
@@ -24,7 +21,6 @@
         
         .NOTES
             Get more about author in https://blogdojamal.wordpress.com/
-
         .LINK
             https://github.com/Jamal27/SQLServer_Scripts/
         
@@ -37,7 +33,6 @@
             Get-SQLBuildVersion -SqlInstance "DESKTOP-A7S2JPV\SQLSERVER2016","DESKTOP-A7S2JPV\SQLSERVER2014" -SmtpServer "smtp.office365.com" -EmailFrom "reginaldo.silva27@gmail.com" -EmailTo "reginaldo.silva27@gmail.com" -CredentialEmail $cred 
         
             Get the latest version of yours instances, in this example called SQLSERVER2016, SQLSERVER2014 and send a e-mail report for each one.
-
    #>
 [CmdletBinding()]
 param(
@@ -48,6 +43,8 @@ param(
     [string] $EmailTo,
     [string] $EmailFrom
 )
+   #Load SMO 
+   [Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo") | Out-Null 
 
    #load page to a variable $data_page
    $data_page = Invoke-WebRequest "https://buildnumbers.wordpress.com/sqlserver/" -Verbose:$false
@@ -71,7 +68,12 @@ param(
    $return = $false
 
    $server = New-Object Microsoft.SqlServer.Management.Smo.Server $instance
-   
+
+   if($server.VersionString -eq $null)
+   {
+        "`nSQL SERVER NOT FOUND: " + $server.Name + "`n`n"
+        continue
+   }
           #Loop to find the version
           foreach($r in $data_rows)   
           {
@@ -175,4 +177,3 @@ param(
           
     }#endloopsqlinstance
 }
-
