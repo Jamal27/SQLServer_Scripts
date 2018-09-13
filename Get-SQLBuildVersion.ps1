@@ -21,7 +21,7 @@
         
         .NOTES
             Supported only in Powershell 3.0 and newer
-            Get more about author in https://blogdojamal.wordpress.com/
+            Get more about author the Reginaldo Silva on https://blogdojamal.wordpress.com/
         .LINK
             https://github.com/Jamal27/SQLServer_Scripts/
         
