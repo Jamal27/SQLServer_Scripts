@@ -10,7 +10,7 @@ CREATE PROCEDURE SP_SENDEMAIL_HTML
 @PROFILE_NAME VARCHAR(50) = '',
 @RECIPIENTS VARCHAR(8000) = '',
 @SUBJECT VARCHAR(1000) = '',
-@BODY VARCHAR(1000) = 'INFORMA«’ES',
+@BODY VARCHAR(1000) = 'INFORMA√á√ïES',
 @IMPORTANCE VARCHAR(20) ='HIGH',
 @HELP BIT = 0
 AS
@@ -27,43 +27,44 @@ PRINT
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Nome Procedure: SP_SENDEMAIL_HTML
 Projeto.......: SCRIPTS
-Vers„o........: 1.0.0.1
+Vers√£o........: 1.0.0.1
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
-SQL Server ediÁıes testadas: SQL Server 2008 e superiores.
+SQL Server edi√ß√µes testadas: SQL Server 2008 e superiores.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
-Id		Autor                      Vers„o	      Data                            DescriÁ„o
+Id		Autor                      Vers√£o	      Data                            Descri√ß√£o
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
-1		Reginaldo da cruz Silva   1.0.0.0		19/02/2017						CriaÁ„o da procedure.
-2		Reginaldo da cruz Silva   1.0.0.1		19/02/2017						ValidaÁ„o dos parametros de entrada.
-3		Reginaldo da cruz Silva   1.0.0.1		19/02/2017						ValidaÁ„o se existem campos do tipo binary ou varbinary.
+1		Reginaldo da cruz Silva   1.0.0.0		19/02/2017						Cria√ß√£o da procedure.
+2		Reginaldo da cruz Silva   1.0.0.1		19/02/2017						Valida√ß√£o dos parametros de entrada.
+3		Reginaldo da cruz Silva   1.0.0.1		19/02/2017						Valida√ß√£o se existem campos do tipo binary ou varbinary.
+4		Reginaldo da cruz Silva   1.0.0.1		17/09/2018						Revis√£o de c√≥digo
 
 	
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
-Revis„o:
+Revis√£o:
 Reginaldo da Cruz Silva - 02/19/2017 17:00
 
-Duvidas e sugestıes:
+Duvidas e sugest√µes:
 Blog: https://blogdojamal.wordpress.com/
 Email: Reginaldo.silva27@gmail.com
 
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-												PAR¬METROS
+												PAR√ÇMETROS
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
- PARAMETRO									DESCRI«√O 
+ PARAMETRO									DESCRI√á√ÉO 
  
-@QUERY				- OPERA«√O DE SELECT QUE DESEJA TRANSFORMAR NO FORMATO HTML E ENVIAR POR EMAIL
+@QUERY				- OPERA√á√ÉO DE SELECT QUE DESEJA TRANSFORMAR NO FORMATO HTML E ENVIAR POR EMAIL
 @PROFILE_NAME		- NOME DO PERFIL CONFIGURADO NO DATABASEMAIL
-@RECIPIENTS			- DESTINAT¡RIOS QUE IRAM RECEBER O EMAIL
+@RECIPIENTS			- DESTINAT√ÅRIOS QUE IRAM RECEBER O EMAIL
 @SUBJECT			- ASSUNTO DO EMAIL
-@BODY				- TEXTO QUE IR¡ SER EXIBIDO ANTES DA TABELA HTML
-@IMPORTANCE			- NÕVEL DE IMPORT¬NCIA DO EMAIL PODENDO SER LOW, NORMAL E HIGH, DEFAULT … HIGH
-@HELP				- MOSTRA DESCRI«√O DOS PAR¬METROS E CABE«ALHO.
+@BODY				- TEXTO QUE IR√Å SER EXIBIDO ANTES DA TABELA HTML
+@IMPORTANCE			- N√çVEL DE IMPORT√ÇNCIA DO EMAIL PODENDO SER LOW, NORMAL E HIGH, DEFAULT √â HIGH
+@HELP				- MOSTRA DESCRI√á√ÉO DOS PAR√ÇMETROS E CABE√áALHO.
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -110,7 +111,7 @@ EXEC('SET ROWCOUNT 1'  + @QUERY_TEMP)
 IF(SELECT COUNT(*) FROM SYSOBJECTS O INNER JOIN SYSCOLUMNS C ON O.ID = C.ID INNER JOIN SYS.TYPES T ON C.XUSERTYPE = T.USER_TYPE_ID
 WHERE O.NAME = 'TEMP_COLUMNS' AND T.NAME LIKE '%BINARY%') > 0
 BEGIN
-	SELECT 'EXISTEM COLUNAS COM O DATATYPE DO TIPO BINARY OU VARBINARY, N√O SER¡ POSSIVEL ENVIAR O E-MAIL.'
+	SELECT 'EXISTEM COLUNAS COM O DATATYPE DO TIPO BINARY OU VARBINARY, N√ÉO SER√Å POSSIVEL ENVIAR O E-MAIL.'
 	SELECT C.NAME COLUMN_NAME,T.NAME TYPE_COLUMN FROM SYSOBJECTS O INNER JOIN SYSCOLUMNS C ON O.ID = C.ID INNER JOIN SYS.TYPES T ON C.XUSERTYPE = T.USER_TYPE_ID
 	WHERE O.NAME = 'TEMP_COLUMNS' AND T.NAME LIKE '%BINARY%'
 	RETURN
