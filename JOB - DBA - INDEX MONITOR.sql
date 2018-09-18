@@ -1,22 +1,11 @@
-/*    ==Scripting Parameters==
-
-    Source Server Version : SQL Server 2017 (14.0.500)
-    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
-    Source Database Engine Type : Standalone SQL Server
-
-    Target Server Version : SQL Server 2017
-    Target Database Engine Edition : Microsoft SQL Server Enterprise Edition
-    Target Database Engine Type : Standalone SQL Server
-*/
-
 USE [msdb]
 GO
 
-/****** Object:  Job [DBA - INDEX MONITOR]    Script Date: 9/13/2017 9:43:06 PM ******/
+/****** Object:  Job [DBA - INDEX MONITOR]    Script Date: 18/09/2018 19:48:28 ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [Data Collector]    Script Date: 9/13/2017 9:43:06 PM ******/
+/****** Object:  JobCategory [Data Collector]    Script Date: 18/09/2018 19:48:28 ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'Data Collector' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'Data Collector'
@@ -36,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - INDEX MONITOR',
 		@category_name=N'Data Collector', 
 		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [LOAD]    Script Date: 9/13/2017 9:43:06 PM ******/
+/****** Object:  Step [LOAD]    Script Date: 18/09/2018 19:48:28 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LOAD', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -51,7 +40,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LOAD',
 		@database_name=N'DBA_MONITOR', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [SEND REPORT]    Script Date: 9/13/2017 9:43:06 PM ******/
+/****** Object:  Step [SEND REPORT]    Script Date: 18/09/2018 19:48:28 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SEND REPORT', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -78,7 +67,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'DAILY',
 		@freq_recurrence_factor=0, 
 		@active_start_date=20170909, 
 		@active_end_date=99991231, 
-		@active_start_time=120000, 
+		@active_start_time=0, 
 		@active_end_time=235959, 
 		@schedule_uid=N'0c805b56-4e68-49e1-bf8c-9833608f6d72'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
