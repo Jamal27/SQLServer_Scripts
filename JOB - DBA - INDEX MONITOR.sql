@@ -21,7 +21,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - INDEX MONITOR',
 		@notify_level_netsend=0, 
 		@notify_level_page=0, 
 		@delete_level=0, 
-		@description=N'COLETA DI¡RIA DA UTILIZA«√O DE ÕNDICES.', 
+		@description=N'COLETA DI√ÅRIA DA UTILIZA√á√ÉO DE √çNDICES.', 
 		@category_name=N'Data Collector', 
 		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
@@ -36,7 +36,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LOAD',
 		@retry_attempts=0, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'TSQL', 
-		@command=N'EXEC SP_DBA_INDEXMONITOR @DATABASES = ''USER_DATABASES'', @EXCEPT = ''logixtst''', 
+		@command=N'EXEC SP_DBA_INDEXMONITOR @DATABASES = ''USER_DATABASES'', @EXCEPT = ''SQLDAYES,traces''', 
 		@database_name=N'DBA_MONITOR', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
