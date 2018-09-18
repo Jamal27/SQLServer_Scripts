@@ -5,7 +5,7 @@
 $SqlInstance = "DESKTOP-A7S2JPV\SQLSERVER2017"
 #Choice a dbname to be created
 $Sqldb = "NameIT_DB"
-#Number of lines to inserted on table tb_users
+#Number of lines to be inserted on table tb_users
 $QtdLines = 1000
 
 #Connect and create database
