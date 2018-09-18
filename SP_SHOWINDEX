@@ -22,13 +22,14 @@ CREATE PROCEDURE SP_SHOWINDEX
 @ORDER_BY			  VARCHAR(1000) = '',
 @OUTPUT_COLUMNS		  VARCHAR(1000) = '',
 @FILTER				  VARCHAR(1000) = '',
+@DESTINATION_TABLE	  VARCHAR(200) = '',
+@DESTINATION_DATABASE VARCHAR(200) = '',
 @HELP				  BIT = 0
 AS
-
+SET NOCOUNT ON
 IF(@HELP <> 0)
 BEGIN
-PRINT 
-'
+PRINT '
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 															SP_SHOWINDEX
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -42,7 +43,6 @@ SQL Server edições testadas: SQL Server 2008 e superiores.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 Id		Autor                      Versão	      Data                            Descrição
 ---------------------------------------------------------------------------------------------------------------------------------------------
-
 1		Paulo Katsuo Katayama Jr   1.0.0.1		01/01/2014     Criação do script para consulta personalizada dos indices.
 2		Reginaldo da Cruz Silva	   1.0.0.1		27/11/2016     Padronização de campos e implementação da procedure.
 3		Reginaldo da Cruz Silva	   1.0.0.2		29/11/2016     Inclusão dos campos FILL_FACTOR e COMPRESSION.
@@ -64,8 +64,8 @@ Id		Autor                      Versão	      Data                            Des
 19		Reginaldo da Cruz Silva	   2.0.0.2		01/02/2017     Inclusão de parametro @EXAMPLE para retornar exemplos de utilização.
 20		Reginaldo da Cruz Silva	   2.0.0.2		02/02/2017     Correção de funcionalidade, quando a tabela pertence a 2 schemas não duplicar linhas.
 21		Reginaldo da Cruz Silva	   2.0.0.3		08/09/2017     Inclusão do parâmetro @FILTER.	
-22		Reginaldo da Cruz Silva	   2.0.0.3		17/09/2017     Revisão de código.	
----------------------------------------------------------------------------------------------------------------------------------------------
+22		Reginaldo da Cruz Silva	   2.0.0.3		18/09/2018     Inclusão dos parâmetros @DESTINATION_TABLE e @DESTINATION_DATABASE.	
+-------------------------------------<<<<<<------------------------------------------------------------------------------------------
 
 Revisão:
 Reginaldo da Cruz Silva - 08/09/2017 16:00
@@ -73,7 +73,6 @@ Reginaldo da Cruz Silva - 08/09/2017 16:00
 Duvidas e sugestões:
 Blog: https://blogdojamal.wordpress.com/
 Email: Reginaldo.silva27@gmail.com
-
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 												PARAMETROS
@@ -95,6 +94,8 @@ Email: Reginaldo.silva27@gmail.com
 @ORDER_BY				- ORDENA O RESULT SET PELO CONJUNTO DE COLUNAS ESPECIFICADOS NO CAMPO, COLUNAS SEPARADAS POR (,).
 @COLUMNS_OUTPUT			- APRESENTA NO RESULT SET APENAS AS COLUNAS DENTRO DA STRING INFORMADA, COLUNAS SEPARADAS POR (,).
 @FILTER					- FILTRA O RESULTSET FINAL UTILIZANDO CLAUSULAS INFORMADAS, EXEMPLO: @FILTER = PAGE_COUNT > 0 AND PK_OR_INDEX = PK
+@DESTINATION_DATABASE	- BANCO DE DADOS QUE DESEJA SALVAR O RESULTADO DA SHOWINDEX
+@DESTINATION_TABLE		- NOME DA TABELA QUE DESEJA SALVAR AS INFORMAÇÕES, INFORMAR EM CONJUNTO COM O @DESTINATION_DATABASE
 @HELP					- MOSTRA DESCRIÇÃO DAS COLUNAS, PARAMETROS E CABEÇALHO.
 
 
@@ -155,7 +156,7 @@ PERCENTFULL_COMPRESSED			- PORCENTAGEM UTILIZADA DO ROW GROUP COMPRESSED (CALCUL
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-'
+' 
 
 RETURN
 END
@@ -166,6 +167,21 @@ IF(CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50))) LIKE '12%' OR (CAST(SE
 BEGIN
 	SET @SQLNEWVERSION = 1
 END
+
+IF(@DESTINATION_TABLE <> '' AND @DESTINATION_DATABASE = '')
+BEGIN
+	PRINT 'INFORME O BANCO DE DADOS DE DESTINO USANDO O PARAMETRO @DESTINATION_DATABASE.'
+	RETURN
+END
+
+IF(@DESTINATION_TABLE = '' AND @DESTINATION_DATABASE <> '')
+BEGIN
+	PRINT 'INFORME A TABELA DE DESTINO USANDO O PARAMETRO @DESTINATION_TABLE.'
+	RETURN
+END
+
+IF(SELECT OBJECT_ID('tempdb..##TEMP_SHOWINDEX')) IS NOT NULL
+	DROP TABLE ##TEMP_SHOWINDEX 
 
 SET @COMMAND = 
 CASE WHEN @IS_DUPLICATE <> 0 THEN
@@ -250,8 +266,12 @@ IF(SELECT OBJECT_ID(''tempdb..#TEMP_INDICES'')) IS NOT NULL
 				         GROUP BY I.object_id,I.index_id
 ' 
 ELSE '' END +
+
+CASE WHEN @DESTINATION_TABLE <> '' AND OBJECT_ID(@DESTINATION_DATABASE+'..'+ @DESTINATION_TABLE) IS NOT NULL THEN 'INSERT INTO '+ @DESTINATION_DATABASE+'..'+ @DESTINATION_TABLE ELSE '' END +
 '
-SELECT	'+CAST(CASE WHEN @OUTPUT_COLUMNS <> '' THEN @OUTPUT_COLUMNS ELSE '*' END + ' FROM ( SELECT '
+SELECT	'+CAST(CASE WHEN @DESTINATION_TABLE <> '' AND @OUTPUT_COLUMNS <> '' THEN ' GETDATE() AS DATE_COLLECTION,' +@OUTPUT_COLUMNS  WHEN @DESTINATION_TABLE <> '' AND @OUTPUT_COLUMNS = '' THEN ' GETDATE() AS DATE_COLLECTION,*' WHEN @OUTPUT_COLUMNS <> '' THEN @OUTPUT_COLUMNS ELSE '*' END +
+CASE WHEN @DESTINATION_TABLE <> '' AND OBJECT_ID(@DESTINATION_DATABASE+'..'+ @DESTINATION_TABLE) IS NULL THEN ' INTO ##TEMP_SHOWINDEX' ELSE '' END 
++ ' FROM ( SELECT '
  +
 CASE WHEN @LIMITED <> 0 THEN 
 '
@@ -276,7 +296,9 @@ CASE WHEN @LIMITED <> 0 THEN
 		COLUMNS,
 		ISNULL(INCLUDE,'''') AS INCLUDE_COLUMNS,
 		DROP_COMMAND,CREATE_COMMAND,PRIMARY_KEY,INDEX_UNIQUE,UNIQUE_KEY,LAST_SEEK,LAST_SCAN,LAST_LOOKUP,LAST_UPDATE,IS_DISABLED
-' END AS VARCHAR(MAX))+ '
+' END AS VARCHAR(MAX))+
+--CASE WHEN @OUTPUT_COLUMNS = '' AND @DESTINATION_TABLE <> '' AND OBJECT_ID(@DESTINATION_DATABASE+'..'+ @DESTINATION_TABLE) IS NOT NULL THEN' INTO '+ @DESTINATION_DATABASE+'..'+ @DESTINATION_TABLE WHEN @OUTPUT_COLUMNS = '' AND @DESTINATION_TABLE <> '' AND OBJECT_ID(@DESTINATION_DATABASE+'..'+ @DESTINATION_TABLE) IS NULL THEN ' INTO ##TEMP_SHOWINDEX' ELSE '' END 
++'
 FROM (
 		SELECT 
 		    DB_NAME(U.DATABASE_ID) AS DATABASE_NAME, 
@@ -457,5 +479,33 @@ IF(SELECT OBJECT_ID(''tempdb..#INDEXDUPLICATE_TABLE'')) IS NOT NULL
 
 EXEC (@COMMAND)
 
+IF(@DESTINATION_TABLE <> '' AND OBJECT_ID(@DESTINATION_DATABASE+'..'+ @DESTINATION_TABLE) IS NULL)
+BEGIN
+DECLARE @CREATETABLE VARCHAR(4000)
+SELECT @CREATETABLE = 'USE '+ @DESTINATION_DATABASE + ' ' + CHAR(10) +'CREATE TABLE '+@DESTINATION_TABLE+' (' +
+STUFF (
+(
+SELECT  ',',
+QUOTENAME(COLUMN_NAME)  + ' ' +
+DATA_TYPE +  
+CASE 
+WHEN DATA_TYPE LIKE '%char' THEN '(' + COALESCE(NULLIF(CONVERT(VARCHAR, CHARACTER_MAXIMUM_LENGTH), '-1'), 'max') + ')'  
+ELSE ' ' 
+END + 
+CASE IS_NULLABLE 
+WHEN 'NO' THEN 'NOT ' 
+ELSE '' 
+END + 'NULL' AS [text()] 
+FROM tempdb.INFORMATION_SCHEMA.COLUMNS 
+WHERE 
+TABLE_NAME = (SELECT name FROM tempdb.sys.objects WHERE object_id = OBJECT_ID('tempdb..##TEMP_SHOWINDEX')) 
+ORDER BY ORDINAL_POSITION FOR XML PATH('') 
+),1,1,'') + ');'
+
+PRINT @CREATETABLE
+
+IF(SELECT OBJECT_ID('tempdb..##TEMP_SHOWINDEX')) IS NOT NULL
+	DROP TABLE ##TEMP_SHOWINDEX 
+END
 
 
