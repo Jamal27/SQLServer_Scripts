@@ -2,6 +2,7 @@ USE DBA_MONITOR
 GO
 DROP PROCEDURE IF EXISTS SP_SEND_INDEXREPORT
 GO
+-----------ALTERAR LINHA 268, CONTA DO DATABASE MAIL-----------
 CREATE PROCEDURE SP_SEND_INDEXREPORT 
 @Indexfrag bit = 1, -- Apresenta fragmentação dos índices
 @IndexfragPercent tinyint = 50, --Apenas índices com mais de 50% de fragmentação.
@@ -265,6 +266,7 @@ SELECT @EmailBody =
 	  + ISNULL(@Indicesfragmentados, '') + ISNULL(@Indicespoucoutilizados, '') + ISNULL(@Indicespknoncluster, '') 
 	  + ISNULL(@Indicesfillfactor, '') + ISNULL(@Indicescompactados, '') 
 
+-----------ALTERAR AQUI-----------	  
 EXEC msdb.dbo.sp_send_dbmail    
 @profile_name = 'DATASIDE',
 @recipients = 'reginaldo.silva@dataside.com.br',  				 
