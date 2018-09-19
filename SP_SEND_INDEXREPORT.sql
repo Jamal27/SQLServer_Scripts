@@ -4,20 +4,20 @@ DROP PROCEDURE IF EXISTS SP_SEND_INDEXREPORT
 GO
 -----------ALTERAR LINHA 268, CONTA DO DATABASE MAIL-----------
 CREATE PROCEDURE SP_SEND_INDEXREPORT 
-@Indexfrag bit = 1, -- Apresenta fragmentaÁ„o dos Ìndices
-@IndexfragPercent tinyint = 50, --Apenas Ìndices com mais de 50% de fragmentaÁ„o.
-@IndexfragPages int = 10000, --Apenas Ìndices com mais de 10000 p·ginas
-@IndexLowutilization bit = 1, --Õndices com baixa utilizaÁ„o
-@IndexLowutilizationMonths tinyint = 3, --Avaliar ˙ltimos 3 meses de coleta
-@IndexHighUpdates bit = 1, --Õndices com bastante escrita
-@IndexUtilization bit = 1, --Õndices com bastante leitura
-@QtdIndex bit = 1, --Quantidade de Ìndices por banco de dados
-@IndexDuplicate bit = 1, --Apresenta Ìndices duplicados
-@IndexDisabled bit = 1, --Apresenta Ìndices desabilitados†
-@IndexPkNonClustered bit = 1, --Apresenta Ìndices PK non clustered
-@IndexFillFactor bit = 1, --Apresenta fill factor dos Ìndices
-@IndexFillFactorPercent tinyint= 98, --Õndices apenas com Fill factor menor que 98
-@IndexCompression bit = 1 -- Apresenta Ìndices com compress„o
+@Indexfrag bit = 1, -- Apresenta fragmenta√ß√£o dos √≠ndices
+@IndexfragPercent tinyint = 50, --Apenas √≠ndices com mais de 50% de fragmenta√ß√£o.
+@IndexfragPages int = 10000, --Apenas √≠ndices com mais de 10000 p√°ginas
+@IndexLowutilization bit = 1, --√çndices com baixa utiliza√ß√£o
+@IndexLowutilizationMonths tinyint = 3, --Avaliar √∫ltimos 3 meses de coleta
+@IndexHighUpdates bit = 1, --√çndices com bastante escrita
+@IndexUtilization bit = 1, --√çndices com bastante leitura
+@QtdIndex bit = 1, --Quantidade de √≠ndices por banco de dados
+@IndexDuplicate bit = 1, --Apresenta √≠ndices duplicados
+@IndexDisabled bit = 1, --Apresenta √≠ndices desabilitados¬†
+@IndexPkNonClustered bit = 1, --Apresenta √≠ndices PK non clustered
+@IndexFillFactor bit = 1, --Apresenta fill factor dos √≠ndices
+@IndexFillFactorPercent tinyint= 98, --√çndices apenas com Fill factor menor que 98
+@IndexCompression bit = 1 -- Apresenta √≠ndices com compress√£o
 AS
 DECLARE @EmailBody VARCHAR(MAX)
 
@@ -26,7 +26,7 @@ BEGIN
 --INDICES MAIS FRAGMENTADOS
 DECLARE @Indicesfragmentados NVARCHAR(MAX) 
 
-SET @Indicesfragmentados = N'<H1>INDICES FRAGMENTADOS > 50%</H1>' + N'<table border="1">' + N'<tr><th BGCOLOR="#C0C0C0" WIDTH=200 height=42>DATABASE</th><th BGCOLOR="#C0C0C0" WIDTH=200>TABLE</th><th BGCOLOR="#C0C0C0" WIDTH=200>INDEX</th><th BGCOLOR="#C0C0C0" WIDTH=200>INDEX TYPE</th><th BGCOLOR="#C0C0C0" WIDTH=200>FRAGMENTATION</th> <th BGCOLOR="#C0C0C0" WIDTH=200>FILL_FACTOR</th> <th BGCOLOR="#C0C0C0" WIDTH=200>PAGE COUNT</th> </tr>' + 
+SET @Indicesfragmentados = N'<H1>INDICES FRAGMENTADOS > '+CAST(@IndexfragPercent AS VARCHAR(10))+'%</H1>' + N'<table border="1">' + N'<tr><th BGCOLOR="#C0C0C0" WIDTH=200 height=42>DATABASE</th><th BGCOLOR="#C0C0C0" WIDTH=200>TABLE</th><th BGCOLOR="#C0C0C0" WIDTH=200>INDEX</th><th BGCOLOR="#C0C0C0" WIDTH=200>INDEX TYPE</th><th BGCOLOR="#C0C0C0" WIDTH=200>FRAGMENTATION</th> <th BGCOLOR="#C0C0C0" WIDTH=200>FILL_FACTOR</th> <th BGCOLOR="#C0C0C0" WIDTH=200>PAGE COUNT</th> </tr>' + 
 CAST(
 (SELECT 'center' AS 'td/@align', '#FFFFFF' AS 'td/@BGCOLOR', td = CAST(DATABASE_NAME AS NVARCHAR(200)) , ' ', 'center' AS 'td/@align' ,
 '#FFFFFF' AS 'td/@BGCOLOR', td = CAST(TABLE_NAME AS NVARCHAR(200)) , ' ', 'center' AS 'td/@align' ,
@@ -270,7 +270,7 @@ SELECT @EmailBody =
 EXEC msdb.dbo.sp_send_dbmail    
 @profile_name = 'DATASIDE',
 @recipients = 'reginaldo.silva@dataside.com.br',  				 
-@subject = 'INFORMA«’ES INDICES' ,   
+@subject = 'INFORMA√á√ïES INDICES' ,   
 @body = @EmailBody ,    
 @body_format = 'HTML' ,    
 @importance='HIGH'
