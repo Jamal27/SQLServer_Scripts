@@ -1,5 +1,5 @@
-﻿# Utilizando a função do Dbatools para capturar a lista de todos os Jobs de um servidor específico
-$JobList = Get-DbaAgentJob -SqlInstance "DESKTOP-A7S2JPV\SQLSERVER2016"
+# Utilizando a função do Dbatools para capturar a lista de todos os Jobs de um servidor específico
+$JobList = Get-DbaAgentJob -SqlInstance "DESKTOP-A7S2JPV\SQLSERVER2016" -EnableException
 #Caminho onde será gerado os scripts
 $Pathbase = "C:\temp\BackupJobs\"
 $Path = ""
@@ -16,6 +16,6 @@ $Path = ""
   $options.ScriptBatchTerminator = $true
   $options.AnsiFile = $true
 
-  #Exportar Job por Job para o caminho especificado
-  $Job | Export-DbaScript -Path $Path -ScriptingOptionsObject $options  
+  #Exportar Job por Job para o caminho especificado utilizando Dbatools.
+  $Job | Export-DbaScript -Path $Path -ScriptingOptionsObject $options  -EnableException
  } 
